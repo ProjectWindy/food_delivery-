@@ -7,7 +7,7 @@ import 'package:food_delivery/view/menu/item_details_view.dart';
 import 'package:food_delivery/view/more/my_order_view.dart';
 import 'package:food_delivery/common_widget/menu_item_row.dart';
 import 'package:provider/provider.dart';
-import 'package:food_delivery/models/cart.dart';
+import 'package:food_delivery/services/cart.dart';
 import 'package:food_delivery/services/product_service.dart';
 
 class MenuItem {

@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'common/globs.dart';
 import 'package:provider/provider.dart';
-import 'package:food_delivery/models/cart.dart';
+import 'package:food_delivery/services/cart.dart';
 
 SharedPreferences? prefs;
 

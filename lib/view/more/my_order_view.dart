@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:food_delivery/common_widget/round_button.dart';
 import 'package:food_delivery/view/more/checkout_view.dart';
 import 'package:provider/provider.dart';
-import 'package:food_delivery/models/cart.dart';
+import 'package:food_delivery/services/cart.dart';
 import 'package:food_delivery/common/color_extension.dart';
 
 class MyOrderView extends StatelessWidget {

@@ -5,10 +5,14 @@ class Cart with ChangeNotifier {
 
   List<Map<String, dynamic>> get items => _items;
 
+  /// Thêm sản phẩm vào giỏ hàng (nếu đã có thì tăng số lượng)
+
   void addItem(Map<String, dynamic> item) {
     _items.add(item);
     notifyListeners();
   }
+
+  /// Tính tổng tiền giỏ hàng
 
   double getTotal() {
     double total = 0.0;
@@ -22,10 +26,14 @@ class Cart with ChangeNotifier {
     return total;
   }
 
+  /// Xóa toàn bộ giỏ hàng
+
   void clear() {
     _items.clear();
     notifyListeners();
   }
+
+  /// Xử lý thanh toán
 
   Future<void> checkout() async {
     clear();
