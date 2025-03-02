@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '330339934675',
     projectId: 'food-delivery-14139',
     authDomain: 'food-delivery-14139.firebaseapp.com',
+    databaseURL: 'https://food-delivery-14139-default-rtdb.firebaseio.com',
     storageBucket: 'food-delivery-14139.firebasestorage.app',
     measurementId: 'G-QHS22QZ9PG',
   );
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     appId: '1:330339934675:android:e1f80863a85a560b3b4f26',
     messagingSenderId: '330339934675',
     projectId: 'food-delivery-14139',
+    databaseURL: 'https://food-delivery-14139-default-rtdb.firebaseio.com',
     storageBucket: 'food-delivery-14139.firebasestorage.app',
   );
 
@@ -63,7 +65,9 @@ class DefaultFirebaseOptions {
     appId: '1:330339934675:ios:05db772ca1503dd03b4f26',
     messagingSenderId: '330339934675',
     projectId: 'food-delivery-14139',
+    databaseURL: 'https://food-delivery-14139-default-rtdb.firebaseio.com',
     storageBucket: 'food-delivery-14139.firebasestorage.app',
+    androidClientId: '330339934675-g1rpproi8mceqp6go675p90lpbsjg69m.apps.googleusercontent.com',
     iosClientId: '330339934675-r2l1uep5pd4otu8p4bc8lgplnlkkbepq.apps.googleusercontent.com',
     iosBundleId: 'com.example.foodDelivery',
   );
@@ -73,7 +77,9 @@ class DefaultFirebaseOptions {
     appId: '1:330339934675:ios:05db772ca1503dd03b4f26',
     messagingSenderId: '330339934675',
     projectId: 'food-delivery-14139',
+    databaseURL: 'https://food-delivery-14139-default-rtdb.firebaseio.com',
     storageBucket: 'food-delivery-14139.firebasestorage.app',
+    androidClientId: '330339934675-g1rpproi8mceqp6go675p90lpbsjg69m.apps.googleusercontent.com',
     iosClientId: '330339934675-r2l1uep5pd4otu8p4bc8lgplnlkkbepq.apps.googleusercontent.com',
     iosBundleId: 'com.example.foodDelivery',
   );
@@ -84,7 +90,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '330339934675',
     projectId: 'food-delivery-14139',
     authDomain: 'food-delivery-14139.firebaseapp.com',
+    databaseURL: 'https://food-delivery-14139-default-rtdb.firebaseio.com',
     storageBucket: 'food-delivery-14139.firebasestorage.app',
     measurementId: 'G-T2S2NSQR3W',
   );
+
 }

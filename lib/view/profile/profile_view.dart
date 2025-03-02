@@ -63,7 +63,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> saveUserData() async {
     if (user != null) {
-      await _firestore.collection('users').doc(user!.uid).set({
+      await _firestore.collection('users').doc(user!.uid).update({
         'name': nameController.text,
         'mobile': mobileController.text,
         'address': addressController.text,
@@ -101,7 +101,7 @@ class _ProfileViewState extends State<ProfileView> {
                     const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                          Text(
+                        Text(
                           "Profile",
                           style: TextStyle(
                               fontSize: 22, fontWeight: FontWeight.bold),

@@ -7,38 +7,41 @@ class HomeProvider extends ChangeNotifier {
   List<Map<String, dynamic>> popularRestaurants = [];
   List<Map<String, dynamic>> mostPopular = [];
   List<Map<String, dynamic>> recentItems = [];
-  List<Map<String, dynamic>> searchResults = [];  
+  List<Map<String, dynamic>> searchResults = [];
 
   bool isLoading = true;
-  bool isSearching = false;  
+  bool isSearching = false;
 
   HomeProvider() {
     fetchData();
   }
 
+  /// Lấy dữ liệu từ Firestore
   Future<void> fetchData() async {
     try {
-       var popSnapshot = await _firestore.collection('popular_items').get();
-      popularRestaurants = popSnapshot.docs.map((doc) => doc.data()).toList();
+      final snapshots = await Future.wait([
+        _firestore.collection('popular_items').get(),
+        _firestore.collection('most_popular_items').get(),
+        _firestore.collection('recent_items').get(),
+      ]);
 
-       var mostPopSnapshot =
-          await _firestore.collection('most_popular_items').get();
-      mostPopular = mostPopSnapshot.docs.map((doc) => doc.data()).toList();
-
-       var recentSnapshot = await _firestore.collection('recent_items').get();
-      recentItems = recentSnapshot.docs.map((doc) => doc.data()).toList();
+      popularRestaurants = snapshots[0].docs.map((doc) => doc.data()).toList();
+      mostPopular = snapshots[1].docs.map((doc) => doc.data()).toList();
+      recentItems = snapshots[2].docs.map((doc) => doc.data()).toList();
 
       isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("Lỗi khi fetch dữ liệu: $e");
+      print("🔥 Lỗi khi fetch dữ liệu: $e");
+      isLoading = false;
+      notifyListeners();
     }
   }
 
+  /// Tìm kiếm sản phẩm theo tên hoặc mô tả
   Future<void> searchProducts(String query) async {
     if (query.isEmpty) {
-      searchResults = [];
-      notifyListeners();
+      clearSearch();
       return;
     }
 
@@ -46,10 +49,9 @@ class HomeProvider extends ChangeNotifier {
       isSearching = true;
       notifyListeners();
 
-       
       query = query.toLowerCase();
 
-       List<Future<QuerySnapshot>> futures = [
+      final futures = [
         _firestore
             .collection('products')
             .where('name', isGreaterThanOrEqualTo: query)
@@ -64,16 +66,15 @@ class HomeProvider extends ChangeNotifier {
 
       final results = await Future.wait(futures);
 
-       Set<String> addedIds = {};
+      final Set<String> addedIds = {};
       searchResults = [];
 
       for (var snapshot in results) {
         for (var doc in snapshot.docs) {
           var data = doc.data() as Map<String, dynamic>;
-          if (!addedIds.contains(doc.id)) {
-            data['id'] = doc.id;  
+          if (addedIds.add(doc.id)) {
+            data['id'] = doc.id;
             searchResults.add(data);
-            addedIds.add(doc.id);
           }
         }
       }
@@ -81,14 +82,15 @@ class HomeProvider extends ChangeNotifier {
       isSearching = false;
       notifyListeners();
     } catch (e) {
-      print("Lỗi khi tìm kiếm sản phẩm: $e");
+      print("❌ Lỗi khi tìm kiếm sản phẩm: $e");
       isSearching = false;
       notifyListeners();
     }
   }
 
+  /// Xóa kết quả tìm kiếm
   void clearSearch() {
-    searchResults = [];
+    searchResults.clear();
     notifyListeners();
   }
 }

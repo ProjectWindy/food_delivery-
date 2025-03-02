@@ -331,34 +331,6 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
                                     ),
                                   ),
                                   const SizedBox(height: 25),
-                                  // ElevatedButton(
-                                  //   onPressed: () {
-                                  //     final cart = Provider.of<Cart>(context,
-                                  //         listen: false);
-                                  //     if (selectedSize != null) {
-                                  //       cart.addItem({
-                                  //         "name": widget.item['name'],
-                                  //         "price": widget.item['rate'],
-                                  //         "qty": quantity,
-                                  //         "size": selectedSize,
-                                  //       });
-                                  //       ScaffoldMessenger.of(context)
-                                  //           .showSnackBar(
-                                  //         SnackBar(
-                                  //             content: Text(
-                                  //                 '${widget.item['name']} đã được thêm vào giỏ hàng!')),
-                                  //       );
-                                  //     } else {
-                                  //       ScaffoldMessenger.of(context)
-                                  //           .showSnackBar(
-                                  //         SnackBar(
-                                  //             content: Text(
-                                  //                 'Vui lòng chọn kích thước!')),
-                                  //       );
-                                  //     }
-                                  //   },
-                                  //   child: Text("Add to Cart"),
-                                  // ),
                                 ],
                               ),
                             ),

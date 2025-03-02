@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:food_delivery/models/food.dart';
 import 'package:food_delivery/view/admin/image.dart';
  
-import '../../service_call.dart';
+import '../../services/service_call.dart';
 
 class EditProductScreen extends StatefulWidget {
   final ProductModel product;

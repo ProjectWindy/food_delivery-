@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
- import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:food_delivery/common/color_extension.dart';
 import 'package:food_delivery/common_widget/round_textfield.dart';
 import 'package:food_delivery/view/menu/item_details_view.dart';
@@ -8,6 +8,7 @@ import 'package:food_delivery/view/more/my_order_view.dart';
 import 'package:food_delivery/common_widget/menu_item_row.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery/models/cart.dart';
+import 'package:food_delivery/services/product_service.dart';
 
 class MenuItem {
   String image;
@@ -44,7 +45,7 @@ Future<void> uploadMenuItems() async {
 
   if (snapshot.exists) {
     print("Dữ liệu đã tồn tại, không tải lên nữa.");
-    return;  
+    return;
   }
 
   print("Dữ liệu đã được tải lên Firebase thành công.");
@@ -59,6 +60,7 @@ class MenuItemsView extends StatefulWidget {
 }
 
 class _MenuItemsViewState extends State<MenuItemsView> {
+  final ProductService _productService = ProductService();
   TextEditingController txtSearch = TextEditingController();
   List<Map<String, dynamic>> menuItemsArr = [];
   List<Map<String, dynamic>> filteredMenuItemsArr = [];
@@ -68,48 +70,26 @@ class _MenuItemsViewState extends State<MenuItemsView> {
     super.initState();
     fetchMenuItems();
 
-     txtSearch.addListener(() {
+    txtSearch.addListener(() {
       filterMenuItems(txtSearch.text);
     });
   }
 
   Future<void> fetchMenuItems() async {
     try {
-      final FirebaseFirestore firestore = FirebaseFirestore.instance;
-      QuerySnapshot snapshot = await firestore.collection("menu_items").get();
-
-      List<Map<String, dynamic>> menu = snapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-        return {
-          'image': data['image'] ?? 'assets/img/default.png',
-          'name': data['name'] ?? 'Unknown',
-          'rate': data['rate'] ?? '0.0',
-          'rating': data['rating'] ?? '0',
-          'type': data['type'] ?? 'Unknown',
-          'food_type': data['food_type'] ?? 'Other',
-        };
-      }).toList();
-
+      List<Map<String, dynamic>> menu = await _productService.fetchMenuItems();
       setState(() {
         menuItemsArr = menu;
-        filteredMenuItemsArr = menu; // Khởi tạo danh sách hiển thị ban đầu
+        filteredMenuItemsArr = menu;
       });
-
-      print("Fetched items: ${menu.length}");
     } catch (e) {
       print("Error fetching menu items: $e");
     }
   }
 
   void filterMenuItems(String query) {
-    List<Map<String, dynamic>> filteredList = menuItemsArr.where((item) {
-      return item['name']
-          .toString()
-          .toLowerCase()
-          .contains(query.toLowerCase());
-    }).toList();
-
+    List<Map<String, dynamic>> filteredList =
+        _productService.filterMenuItems(menuItemsArr, query);
     setState(() {
       filteredMenuItemsArr = filteredList;
     });

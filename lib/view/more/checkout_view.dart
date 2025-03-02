@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'change_address_view.dart';
 import 'checkout_message_view.dart';
+import '../../services/checkout_service.dart';
 
 class CheckoutView extends StatefulWidget {
   final double totalAmount;
@@ -24,6 +25,7 @@ class CheckoutView extends StatefulWidget {
 }
 
 class _CheckoutViewState extends State<CheckoutView> {
+  final CheckoutService _checkoutService = CheckoutService();
   String userAddress = "Loading address...";
 
   List paymentArr = [
@@ -41,28 +43,10 @@ class _CheckoutViewState extends State<CheckoutView> {
   }
 
   Future<void> fetchUserAddress() async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-
-        if (userDoc.exists) {
-          Map<String, dynamic>? userData =
-              userDoc.data() as Map<String, dynamic>?;
-          setState(() {
-            userAddress = userData?['address'] ?? "No address found";
-          });
-        }
-      }
-    } catch (e) {
-      print("Error fetching address: $e");
-      setState(() {
-        userAddress = "Error loading address";
-      });
-    }
+    String address = await _checkoutService.fetchUserAddress();
+    setState(() {
+      userAddress = address;
+    });
   }
 
   @override
@@ -228,39 +212,23 @@ class _CheckoutViewState extends State<CheckoutView> {
                 child: RoundButton(
                   title: "Send Order",
                   onPressed: () async {
-                    User? user = FirebaseAuth.instance.currentUser;
-                    if (user == null) return;
+                    try {
+                      await _checkoutService.processPayment(
+                        totalAmount: widget.totalAmount,
+                        subtotal: widget.subtotal,
+                        deliveryCost: widget.deliveryCost,
+                        cartDetails: paymentArr,
+                      );
 
-                    String userId = user.uid;
-                    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(userId)
-                        .get();
-                    Map<String, dynamic>? userData =
-                        userDoc.data() as Map<String, dynamic>?;
-
-                    final paymentInfo = {
-                      "userId": userId,
-                      "timestamp": FieldValue.serverTimestamp(),
-                      "totalAmount": widget.totalAmount,
-                      "subtotal": widget.subtotal,
-                      "deliveryCost": widget.deliveryCost,
-                      "cartDetails": paymentArr,
-                      "userName": userData?['name'],
-                      "userAddress": userData?['address'],
-                      "userMobile": userData?['mobile'],
-                    };
-
-                    await FirebaseFirestore.instance
-                        .collection('payments')
-                        .add(paymentInfo);
-
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (context) => const CheckoutMessageView(),
-                    );
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        isScrollControlled: true,
+                        builder: (context) => const CheckoutMessageView(),
+                      );
+                    } catch (e) {
+                      print("Error processing payment: $e");
+                    }
                   },
                 ),
               ),

@@ -78,8 +78,7 @@ class _NewPasswordViewState extends State<NewPasswordView> {
     );
   }
 
-   //TODO: Action
-  void btnSubmit() {
+   void btnSubmit() {
 
     if(txtPassword.text.length <6) {
       mdShowAlert(Globs.appName, MSG.enterPassword, () { });
@@ -99,8 +98,7 @@ class _NewPasswordViewState extends State<NewPasswordView> {
     });
   }
 
-  //TODO: ServiceCall
-
+ 
   void serviceCallForgotSetNew(Map<String, dynamic> parameter) {
     Globs.showHUD();
 

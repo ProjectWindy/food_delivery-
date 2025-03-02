@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:food_delivery/services/order_history_service.dart';
 import 'package:intl/intl.dart';
 
 class OrderHistoryView extends StatelessWidget {
-  final NumberFormat currencyFormatter = NumberFormat("#,##0.00", "en_US");
+  final OrderHistoryService _orderService = OrderHistoryService();
 
   Widget _buildPaymentMethodIcon(String? icon) {
     if (icon == null || icon.isEmpty) {
@@ -22,19 +23,6 @@ class OrderHistoryView extends StatelessWidget {
     );
   }
 
-  String _formatDateTime(dynamic timestamp) {
-    if (timestamp == null) return 'N/A';
-    DateTime dateTime;
-    if (timestamp is Timestamp) {
-      dateTime = timestamp.toDate();
-    } else if (timestamp is String) {
-      dateTime = DateTime.parse(timestamp);
-    } else {
-      return 'N/A';
-    }
-    return DateFormat('MM/dd/yyyy HH:mm').format(dateTime);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +33,7 @@ class OrderHistoryView extends StatelessWidget {
         elevation: 1,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _getUserOrdersStream(),
+        stream: _orderService.getUserOrdersStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -118,7 +106,8 @@ class OrderHistoryView extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _formatDateTime(order['timestamp']),
+                                  _orderService
+                                      .formatDateTime(order['timestamp']),
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14,
@@ -131,12 +120,12 @@ class OrderHistoryView extends StatelessWidget {
                       ),
                       const Divider(height: 24, thickness: 1.2),
                       _buildOrderDetail('Delivery Fee:',
-                          '\$${currencyFormatter.format(order['deliveryCost'] ?? 0)}'),
+                          _orderService.formatCurrency(order['deliveryCost'])),
                       _buildOrderDetail('Subtotal:',
-                          '\$${currencyFormatter.format(order['subtotal'] ?? 0)}'),
+                          _orderService.formatCurrency(order['subtotal'])),
                       _buildOrderDetail(
                         'Total Amount:',
-                        '\$${currencyFormatter.format(order['totalAmount'] ?? 0)}',
+                        _orderService.formatCurrency(order['totalAmount']),
                         isTotal: true,
                       ),
                     ],
@@ -174,18 +163,5 @@ class OrderHistoryView extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Stream<QuerySnapshot> _getUserOrdersStream() {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception("User not logged in");
-    }
-
-    return FirebaseFirestore.instance
-        .collection('payments')
-        .where('userId', isEqualTo: user.uid)
-        .orderBy('timestamp', descending: true)
-        .snapshots();
   }
 }

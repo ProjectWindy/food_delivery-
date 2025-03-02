@@ -11,6 +11,7 @@ import 'package:food_delivery/view/more/payment_details_view.dart';
 import '../../common/color_extension.dart';
 import '../../common/service_call.dart';
 import 'notification_view.dart';
+import '../../services/auth_service.dart';
 
 class MoreView extends StatefulWidget {
   const MoreView({super.key});
@@ -20,6 +21,7 @@ class MoreView extends StatefulWidget {
 }
 
 class _MoreViewState extends State<MoreView> {
+  final AuthService _authService = AuthService();
   List moreArr = [];
   String userRole = '';
 
@@ -30,17 +32,11 @@ class _MoreViewState extends State<MoreView> {
   }
 
   Future<void> _getUserRole() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      setState(() {
-        userRole = userDoc['role'];
-        moreArr = _buildMoreArr();
-      });
-    }
+    String role = await _authService.getUserRole();
+    setState(() {
+      userRole = role;
+      moreArr = _buildMoreArr();
+    });
   }
 
   List _buildMoreArr() {
@@ -183,7 +179,7 @@ class _MoreViewState extends State<MoreView> {
                                     builder: (context) => const AboutUsView()));
                             break;
                           case "6":
-                            ServiceCall.logout();
+                            _authService.logout();
                             break;
                           case "7":
                             Navigator.push(

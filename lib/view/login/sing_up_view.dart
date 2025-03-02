@@ -12,6 +12,7 @@ import '../../common/globs.dart';
 import '../../common/service_call.dart';
 import '../../common_widget/round_textfield.dart';
 import '../on_boarding/on_boarding_view.dart';
+import '../../services/auth_service.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -21,6 +22,7 @@ class SignUpView extends StatefulWidget {
 }
 
 class _SignUpViewState extends State<SignUpView> {
+  final AuthService _authService = AuthService();
   TextEditingController txtName = TextEditingController();
   TextEditingController txtMobile = TextEditingController();
   TextEditingController txtAddress = TextEditingController();
@@ -179,21 +181,13 @@ class _SignUpViewState extends State<SignUpView> {
     }
 
     try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await _authService.signUp(
         email: txtEmail.text,
         password: txtPassword.text,
+        name: txtName.text,
+        mobile: txtMobile.text,
+        address: txtAddress.text,
       );
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user?.uid)
-          .set({
-        'name': txtName.text,
-        'mobile': txtMobile.text,
-        'address': txtAddress.text,
-        'role': 'users',
-      });
 
       Navigator.pushAndRemoveUntil(
         context,

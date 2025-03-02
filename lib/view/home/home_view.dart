@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery/common/color_extension.dart';
 import 'package:food_delivery/common_widget/round_textfield.dart';
-import 'package:food_delivery/models/home.dart';
+import 'package:food_delivery/services/home.dart';
 import 'package:food_delivery/view/home/search_view.dart';
 import 'package:food_delivery/view/menu/item_details_view.dart';
 import 'package:provider/provider.dart';
 
-import '../../common/globs.dart';
-import '../../common/service_call.dart';
-import '../../common_widget/category_cell.dart';
+  import '../../common_widget/category_cell.dart';
 import '../../common_widget/most_popular_cell.dart';
 import '../../common_widget/popular_resutaurant_row.dart';
 import '../../common_widget/recent_item_row.dart';
 import '../../common_widget/view_all_title_row.dart';
-import '../more/my_order_view.dart';
-
+ 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 

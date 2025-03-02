@@ -3,11 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:food_delivery/common/color_extension.dart';
 import 'package:food_delivery/common_widget/most_popular_cell.dart';
 import 'package:food_delivery/view/menu/item_details_view.dart';
+import 'package:food_delivery/services/product_service.dart';
 
 class SearchView extends StatelessWidget {
   final String searchQuery;
+  final ProductService _productService = ProductService();
 
-  const SearchView({super.key, required this.searchQuery});
+  SearchView({super.key, required this.searchQuery});
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +17,8 @@ class SearchView extends StatelessWidget {
       appBar: AppBar(
         title: Text('Kết quả tìm kiếm: $searchQuery'),
       ),
-      body: FutureBuilder<QuerySnapshot>(
-        future: _getAllProducts(),
+      body: FutureBuilder<List<DocumentSnapshot>>(
+        future: _productService.searchProducts(searchQuery),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -24,27 +26,15 @@ class SearchView extends StatelessWidget {
           if (snapshot.hasError) {
             return const Center(child: Text('Có lỗi xảy ra!'));
           }
-          if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('Không tìm thấy sản phẩm nào.'));
-          }
-
-          var filteredProducts = snapshot.data!.docs.where((doc) {
-            var product = doc.data() as Map<String, dynamic>;
-            return product['name']
-                .toString()
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase());
-          }).toList();
-
-          if (filteredProducts.isEmpty) {
+          if (snapshot.data == null || snapshot.data!.isEmpty) {
             return const Center(child: Text('Không tìm thấy sản phẩm nào.'));
           }
 
           return ListView.builder(
-            itemCount: filteredProducts.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               var product =
-                  filteredProducts[index].data() as Map<String, dynamic>;
+                  snapshot.data![index].data() as Map<String, dynamic>;
               return Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -57,12 +47,10 @@ class SearchView extends StatelessWidget {
                     "rate": product['rate'] ?? '0',
                   },
                   onTap: () {
-                     Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ItemDetailsView(
-                            item:
-                                product),  
+                        builder: (context) => ItemDetailsView(item: product),
                       ),
                     );
                   },
@@ -74,12 +62,9 @@ class SearchView extends StatelessWidget {
       ),
     );
   }
-
-  Future<QuerySnapshot> _getAllProducts() async {
-    return await FirebaseFirestore.instance.collection('menu_items').get();
-  }
 }
 
+// UI San Pham
 class MostPopularCell1 extends StatelessWidget {
   final Map mObj;
   final VoidCallback onTap;

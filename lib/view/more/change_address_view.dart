@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../common/color_extension.dart';
+import '../../services/location_service.dart';
 
 class ChangeAddressView extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class ChangeAddressView extends StatefulWidget {
 }
 
 class _ChangeAddressViewState extends State<ChangeAddressView> {
+  final LocationService _locationService = LocationService();
   TextEditingController addressController = TextEditingController();
   bool isLoading = false;
 
@@ -20,21 +22,10 @@ class _ChangeAddressViewState extends State<ChangeAddressView> {
 
   Future<void> loadCurrentAddress() async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-
-        if (userDoc.exists) {
-          Map<String, dynamic>? userData =
-              userDoc.data() as Map<String, dynamic>?;
-          setState(() {
-            addressController.text = userData?['address'] ?? "";
-          });
-        }
-      }
+      String? address = await _locationService.getCurrentAddress();
+      setState(() {
+        addressController.text = address ?? "";
+      });
     } catch (e) {
       print("Error loading address: $e");
     }
@@ -126,25 +117,18 @@ class _ChangeAddressViewState extends State<ChangeAddressView> {
                           });
 
                           try {
-                            User? user = FirebaseAuth.instance.currentUser;
-                            if (user != null) {
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(user.uid)
-                                  .update({'address': newAddress});
+                            await _locationService.updateAddress(newAddress);
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content:
-                                      Text("Address updated successfully!"),
-                                  backgroundColor: Colors.green,
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Address updated successfully!"),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
 
-                              await Future.delayed(Duration(seconds: 1));
-                              Navigator.pop(context, newAddress);
-                            }
+                            await Future.delayed(Duration(seconds: 1));
+                            Navigator.pop(context, newAddress);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

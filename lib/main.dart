@@ -5,15 +5,13 @@ import 'package:food_delivery/common/color_extension.dart';
 import 'package:food_delivery/common/locator.dart';
 import 'package:food_delivery/common/service_call.dart';
 import 'package:food_delivery/firebase_options.dart';
-import 'package:food_delivery/models/home.dart';
+import 'package:food_delivery/services/home.dart';
 import 'package:food_delivery/view/login/welcome_view.dart';
 import 'package:food_delivery/view/main_tabview/main_tabview.dart';
-import 'package:food_delivery/view/menu/menu_item.dart';
 import 'package:food_delivery/view/on_boarding/startup_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'common/globs.dart';
-import 'common/my_http_overrides.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery/models/cart.dart';
 
@@ -36,15 +34,14 @@ void main() async {
 
     // Initialize services
     setUpLocator();
-    HttpOverrides.global = MyHttpOverrides();
 
-     await initializeApp();
+    await initializeApp();
 
-     prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
 
-     Widget initialScreen;
+    Widget initialScreen;
 
-     if (Globs.udValueBool(Globs.userLogin)) {
+    if (Globs.udValueBool(Globs.userLogin)) {
       ServiceCall.userPayload = Globs.udValue(Globs.userPayload);
 
       if (ServiceCall.userPayload['role'] == 'admin') {
@@ -53,15 +50,14 @@ void main() async {
         ServiceCall.userRole = 'users';
       }
 
-       initialScreen = MainTabView();
+      initialScreen = MainTabView();
     } else {
-       initialScreen = StartupView();
+      initialScreen = StartupView();
     }
 
-    await uploadAllDataOnFirstRun();
     configLoading();
 
-     runApp(
+    runApp(
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => HomeProvider()),

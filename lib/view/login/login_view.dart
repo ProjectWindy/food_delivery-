@@ -9,8 +9,8 @@ import 'package:food_delivery/view/on_boarding/on_boarding_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:food_delivery/services/auth_service.dart';
 
-import '../../common/service_call.dart';
 import '../../common_widget/round_icon_button.dart';
 import '../../common_widget/round_textfield.dart';
 
@@ -24,6 +24,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   TextEditingController txtEmail = TextEditingController();
   TextEditingController txtPassword = TextEditingController();
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -169,30 +170,12 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void btnLogin() async {
-    if (!txtEmail.text.isEmail) {
-      mdShowAlert(Globs.appName, MSG.enterEmail, () {});
-      return;
-    }
+    final result = await _authService.loginWithEmailPassword(
+      txtEmail.text,
+      txtPassword.text,
+    );
 
-    if (txtPassword.text.length < 6) {
-      mdShowAlert(Globs.appName, MSG.enterPassword, () {});
-      return;
-    }
-
-    try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: txtEmail.text,
-        password: txtPassword.text,
-      );
-
-       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user?.uid)
-          .get();
-
-       print('User role: ${userDoc['role']}');
-
+    if (result['success']) {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -200,54 +183,15 @@ class _LoginViewState extends State<LoginView> {
         ),
         (route) => false,
       );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        mdShowAlert(Globs.appName, MSG.userNotFound, () {});
-      } else if (e.code == 'wrong-password') {
-        mdShowAlert(Globs.appName, MSG.wrongPassword, () {});
-      } else {
-        mdShowAlert(Globs.appName, e.message ?? MSG.fail, () {});
-      }
-    } catch (e) {
-      mdShowAlert(Globs.appName, e.toString(), () {});
+    } else {
+      mdShowAlert(Globs.appName, result['message'], () {});
     }
   }
 
   void btnLoginWithGoogle() async {
-    try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        mdShowAlert(Globs.appName, "Google sign-in aborted", () {});
-        return;
-      }
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+    final result = await _authService.loginWithGoogle();
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-
-       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userCredential.user?.uid)
-          .get();
-      if (!userDoc.exists) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user?.uid)
-            .set({
-          'email': userCredential.user?.email,
-          'name': userCredential.user?.displayName,
-          'address': '',
-          'role': 'users',  
-        });
-      }
-
+    if (result['success']) {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -255,8 +199,8 @@ class _LoginViewState extends State<LoginView> {
         ),
         (route) => false,
       );
-    } catch (e) {
-      mdShowAlert(Globs.appName, e.toString(), () {});
+    } else {
+      mdShowAlert(Globs.appName, result['message'], () {});
     }
   }
 }
