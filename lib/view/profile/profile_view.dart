@@ -82,6 +82,17 @@ class _ProfileViewState extends State<ProfileView> {
           profileImageBase64 = base64Image;
         });
       }
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Thông tin đã được lưu thành công!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 

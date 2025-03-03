@@ -8,7 +8,7 @@ class SearchHomeProvider extends ChangeNotifier {
   List<FoodItem> popularRestaurants = [];
   List<FoodItem> mostPopular = [];
   List<FoodItem> recentItems = [];
-  List<FoodItem> allFoodItems = []; 
+  List<FoodItem> allFoodItems = [];
   bool isLoading = true;
   bool isSearching = false;
 
@@ -21,27 +21,27 @@ class SearchHomeProvider extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
 
-       var popSnapshot = await _firestore.collection('popular_items').get();
+      var popSnapshot = await _firestore.collection('popular_items').get();
       popularRestaurants = popSnapshot.docs
           .map((doc) => FoodItem.fromMap(doc.data(), id: doc.id))
           .toList();
 
-       var mostPopSnapshot =
+      var mostPopSnapshot =
           await _firestore.collection('most_popular_items').get();
       mostPopular = mostPopSnapshot.docs
           .map((doc) => FoodItem.fromMap(doc.data(), id: doc.id))
           .toList();
 
-       var recentSnapshot = await _firestore.collection('recent_items').get();
+      var recentSnapshot = await _firestore.collection('recent_items').get();
       recentItems = recentSnapshot.docs
           .map((doc) => FoodItem.fromMap(doc.data(), id: doc.id))
           .toList();
 
-       allFoodItems = [
+      allFoodItems = [
         ...popularRestaurants,
         ...mostPopular,
         ...recentItems,
-      ].toSet().toList(); 
+      ].toSet().toList();
 
       isLoading = false;
       notifyListeners();

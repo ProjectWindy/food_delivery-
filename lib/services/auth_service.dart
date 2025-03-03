@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:food_delivery/common/locator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../common/globs.dart';
@@ -13,6 +14,8 @@ class AuthService {
 
   // Firestore để lưu trữ thông tin người dùng
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final NavigationService navigationService =
+      locator<NavigationService>();
 
   /// Đăng nhập bằng email và mật khẩu
   /// Trả về một `Map` chứa kết quả `success` và thông tin người dùng (nếu thành công)
@@ -151,6 +154,8 @@ class AuthService {
   /// Đăng xuất người dùng
   Future<void> logout() async {
     try {
+      navigationService.navigateTo("welcome");
+
       await _auth.signOut(); // Đăng xuất Firebase
       await _googleSignIn.signOut(); // Nếu đăng nhập Google thì cũng đăng xuất
     } catch (e) {
